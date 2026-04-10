@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CorpTrack – Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <a href="/dashboard" class="logo">CORP<span>TRACK</span></a>
+    <nav>
+      <a href="/add">+ Add Employee</a>
+      <a href="/logout" class="btn-nav">Logout</a>
+    </nav>
+  </div>
+
+  <!-- Page Content -->
+  <div class="page">
+    <div class="dash-header">
+      <h1>
+        Employee Records
+        {% if session.role == 'admin' %}
+          <span class="badge badge-admin">Admin</span>
+        {% else %}
+          <span class="badge badge-employee">Employee</span>
+        {% endif %}
+      </h1>
+      <span style="color: var(--muted); font-size: 0.85rem;">Logged in as: {{ session.username }}</span>
+    </div>
+
+    {% if employees %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th>Job Title</th>
+              <th>Phone</th>
+              <th>Date Joined</th>
+              {% if session.role == 'admin' %}<th>Actions</th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for emp in employees %}
+            <tr>
+              <td>{{ emp.name }}</td>
+              <td>{{ emp.email }}</td>
+              <td>{{ emp.department }}</td>
+              <td>{{ emp.job_title }}</td>
+              <td>{{ emp.phone }}</td>
+              <td>{{ emp.date_joined }}</td>
+              {% if session.role == 'admin' %}
+              <td>
+                <div class="actions">
+                  <a href="/edit/{{ emp.id }}" class="btn btn-warning">Edit</a>
+                  <a href="/delete/{{ emp.id }}" class="btn btn-danger"
+                     onclick="return confirm('Delete this record?')">Delete</a>
+                </div>
+              </td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    {% else %}
+      <div class="table-wrap">
+        <div class="empty">
+          <strong>No records found</strong>
+          <p>Click <a href="/add" style="color:var(--accent)">+ Add Employee</a> to add the first record.</p>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+</body>
+</html>
