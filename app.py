@@ -95,19 +95,27 @@ def dashboard():
     if "username" not in session:
         return redirect(url_for("login"))
 
+    # Get search term from the URL if it exists (e.g. ?search=John)
+    search = request.args.get("search", "")
+
     conn = get_db()
     if session["role"] == "admin":
-        # Admin sees ALL employee records
-        employees = conn.execute("SELECT * FROM employees").fetchall()
+        if search:
+            # Search by name or department if admin typed something
+            employees = conn.execute(
+                "SELECT * FROM employees WHERE name LIKE ? OR department LIKE ?",
+                (f"%{search}%", f"%{search}%")
+            ).fetchall()
+        else:
+            # Show all employees if no search term
+            employees = conn.execute("SELECT * FROM employees").fetchall()
     else:
-        # Employee sees only their own record
+        # Employee only sees their own record, no search needed
         employees = conn.execute(
             "SELECT * FROM employees WHERE username=?", (session["username"],)
         ).fetchall()
     conn.close()
-    return render_template("dashboard.html", employees=employees)
-
-
+    return render_template("dashboard.html", employees=employees, search=search)
 @app.route("/add", methods=["GET", "POST"])
 def add_employee():
     if "username" not in session:
