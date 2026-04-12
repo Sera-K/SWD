@@ -61,8 +61,9 @@ def login():
         conn = get_db()
         # No prepared statements — intentionally vulnerable to SQL injection
         user = conn.execute(
-            f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
-        ).fetchone()
+            "SELECT * FROM users WHERE username=? AND password=?",
+            (username, password)
+        ).fetchone() #security fix
         conn.close()
         if user:
             session["username"] = user["username"]
