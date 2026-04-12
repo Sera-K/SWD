@@ -25,7 +25,7 @@ CorpTrack is a web-based employee records management system built with Python (F
 |----------|-----------|
 | admin    | admin123  |
 
-## Known Security Vulnerabilities (Intentional)
+## Known Security Vulnerabilities 
 1. SQL Injection on login form
 2. Passwords stored as plain text
 3. No input validation on any form field
