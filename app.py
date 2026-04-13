@@ -12,7 +12,7 @@ DB = "corptrack.db"
 def get_db():
     """Connect to the SQLite database."""
     conn = sqlite3.connect(DB)
-    conn.row_factory = sqlite3.Row  # Lets us access columns by name
+    conn.row_factory = sqlite3.Row  
     return conn
 
 def init_db():
@@ -45,7 +45,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-# ─── Routes ────────────────────────────────────────────────────────────────────
+
 
 @app.route("/")
 def home():
@@ -59,7 +59,7 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
         conn = get_db()
-        # No prepared statements — intentionally vulnerable to SQL injection
+        
         user = conn.execute(
             "SELECT * FROM users WHERE username=? AND password=?",
             (username, password)
@@ -184,8 +184,6 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
-
-# ─── Run ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     init_db()
