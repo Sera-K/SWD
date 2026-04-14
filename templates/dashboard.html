@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CorpTrack – Dashboard</title>
+  <title>CorpTrack - Dashboard</title>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -29,7 +29,7 @@
       </h1>
       <span style="color: var(--muted); font-size: 0.85rem;">Logged in as: {{ session.username }}</span>
     </div>
-    <!-- Search Bar (Admin Only) -->
+    
     {% if session.role == 'admin' %}
     <form method="GET" action="/dashboard" style="margin-bottom: 24px; display: flex; gap: 10px;">
       <input type="text" name="search" placeholder="Search by name or department..."

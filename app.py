@@ -3,11 +3,9 @@ import sqlite3
 import os
 
 app = Flask(__name__)
-app.secret_key = "corptrack_secret"  # Used to manage login sessions
+app.secret_key = "corptrack_secret"  
 
 DB = "corptrack.db"
-
-# ─── Database Setup ────────────────────────────────────────────────────────────
 
 def get_db():
     """Connect to the SQLite database."""
@@ -38,7 +36,6 @@ def init_db():
             username    TEXT   -- links employee record to a user account
         )
     """)
-    # Default admin account (no hashing — intentionally insecure)
     existing = conn.execute("SELECT * FROM users WHERE username='admin'").fetchone()
     if not existing:
         conn.execute("INSERT INTO users (username, password, role) VALUES ('admin','admin123','admin')")
@@ -61,9 +58,10 @@ def login():
         conn = get_db()
         
         user = conn.execute(
+        
             "SELECT * FROM users WHERE username=? AND password=?",
             (username, password)
-        ).fetchone() #security fix
+        ).fetchone() #security fix -- "SELECT * FROM users WHERE username=username AND password=password"
         conn.close()
         if user:
             session["username"] = user["username"]
@@ -95,23 +93,18 @@ def register():
 def dashboard():
     if "username" not in session:
         return redirect(url_for("login"))
-
-    # Get search term from the URL if it exists (e.g. ?search=John)
     search = request.args.get("search", "")
 
     conn = get_db()
     if session["role"] == "admin":
         if search:
-            # Search by name or department if admin typed something
             employees = conn.execute(
                 "SELECT * FROM employees WHERE name LIKE ? OR department LIKE ?",
                 (f"%{search}%", f"%{search}%")
             ).fetchall()
         else:
-            # Show all employees if no search term
             employees = conn.execute("SELECT * FROM employees").fetchall()
     else:
-        # Employee only sees their own record, no search needed
         employees = conn.execute(
             "SELECT * FROM employees WHERE username=?", (session["username"],)
         ).fetchall()
