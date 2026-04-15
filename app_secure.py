@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 import sqlite3
 import os
-
+import bcrypt
 app = Flask(__name__)
 app.secret_key = "corptrack_secret"  
 
@@ -38,8 +38,11 @@ def init_db():
     """)
     existing = conn.execute("SELECT * FROM users WHERE username='admin'").fetchone()
     if not existing:
-        conn.execute("INSERT INTO users (username, password, role) VALUES ('admin','admin123','admin')")
-    conn.commit()
+        hashed = bcrypt.hashpw("admin123".encode("utf-8"), bcrypt.gensalt())
+conn.execute(
+    "INSERT INTO users (username, password, role) VALUES (?, ?, 'admin')",
+    ("admin", hashed.decode("utf-8"))
+)conn.commit()
     conn.close()
 
 @app.route("/")
@@ -55,9 +58,8 @@ def login():
         conn = get_db()
         
         user = conn.execute(
-            f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
-        ).fetchone() #security fix -- "SELECT * FROM users WHERE username=username AND password=password"
-        conn.close()
+            "SELECT * FROM users WHERE username=? AND password=?", (username,password)
+        ).fetchone() 
         if user:
             session["username"] = user["username"]
             session["role"]     = user["role"]
@@ -73,9 +75,10 @@ def register():
         username = request.form["username"]
         password = request.form["password"]
         conn = get_db()
+        hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         conn.execute(
-            "INSERT INTO users (username, password, role) VALUES (?, ?, 'employee')",
-            (username, password)
+        "INSERT INTO users (username, password, role) VALUES (?, ?, 'employee')",
+        (username, hashed.decode("utf-8"))
         )
         conn.commit()
         conn.close()
