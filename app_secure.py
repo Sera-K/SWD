@@ -12,6 +12,12 @@ def get_db():
     conn = sqlite3.connect(DB)
     conn.row_factory = sqlite3.Row  
     return conn
+def validate_input(value, field_name, max_length=100):
+    if not value or value.strip() == "":
+        return f"{field_name} cannot be empty."
+    if len(value) > max_length:
+        return f"{field_name} must be under {max_length} characters."
+    return None
 
 def init_db():
     """Create tables if they don't exist, and add a default admin."""
@@ -60,7 +66,7 @@ def login():
         user = conn.execute(
             "SELECT * FROM users WHERE username=? AND password=?", (username,password)
         ).fetchone() 
-        if user:
+        if user and bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
             session["username"] = user["username"]
             session["role"]     = user["role"]
             return redirect(url_for("dashboard"))
