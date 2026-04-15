@@ -117,11 +117,28 @@ def add_employee():
     if "username" not in session:
         return redirect(url_for("login"))
     if request.method == "POST":
+    name        = request.form["name"].strip()
+    email       = request.form["email"].strip()
+    department  = request.form["department"].strip()
+    job_title   = request.form["job_title"].strip()
+    phone       = request.form["phone"].strip()
+    date_joined = request.form["date_joined"].strip()
+
+    error = (
+        validate_input(name, "Name") or
+        validate_input(email, "Email") or
+        validate_input(department, "Department") or
+        validate_input(job_title, "Job title") or
+        validate_input(phone, "Phone") or
+        validate_input(date_joined, "Date joined")
+    )
+
+    if not error:
         conn = get_db()
         conn.execute("""
             INSERT INTO employees (name, email, department, job_title, phone, date_joined, username)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
+        """, 
             request.form["name"],
             request.form["email"],
             request.form["department"],
@@ -129,11 +146,11 @@ def add_employee():
             request.form["phone"],
             request.form["date_joined"],
             session["username"]
-        ))
+        )
         conn.commit()
         conn.close()
         return redirect(url_for("dashboard"))
-    return render_template("add_employee.html")
+    return render_template("add_employee.html",error=error)
 
 @app.route("/edit/<int:emp_id>", methods=["GET", "POST"])
 def edit_employee(emp_id):
