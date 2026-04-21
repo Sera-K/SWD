@@ -2,10 +2,11 @@ from flask import Flask, render_template, request, redirect, session, url_for
 import sqlite3
 import os
 import bcrypt
+
 app = Flask(__name__)
 app.secret_key = "corptrack_secret"  
 
-DB = "corptrack.db"
+DB = "corptrack_secure.db"
 
 def get_db():
     """Connect to the SQLite database."""
@@ -45,10 +46,10 @@ def init_db():
     existing = conn.execute("SELECT * FROM users WHERE username='admin'").fetchone()
     if not existing:
         hashed = bcrypt.hashpw("admin123".encode("utf-8"), bcrypt.gensalt())
-conn.execute(
-    "INSERT INTO users (username, password, role) VALUES (?, ?, 'admin')",
-    ("admin", hashed.decode("utf-8"))
-)conn.commit()
+        conn.execute(
+        "INSERT INTO users (username, password, role) VALUES (?, ?, 'admin')",
+        ("admin", hashed.decode("utf-8")))
+    conn.commit()
     conn.close()
 
 @app.route("/")
@@ -64,7 +65,7 @@ def login():
         conn = get_db()
         
         user = conn.execute(
-            "SELECT * FROM users WHERE username=? AND password=?", (username,password)
+            "SELECT * FROM users WHERE username=? ", (username,)
         ).fetchone() 
         if user and bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
             session["username"] = user["username"]
@@ -116,40 +117,33 @@ def dashboard():
 def add_employee():
     if "username" not in session:
         return redirect(url_for("login"))
+    error = None
     if request.method == "POST":
-    name        = request.form["name"].strip()
-    email       = request.form["email"].strip()
-    department  = request.form["department"].strip()
-    job_title   = request.form["job_title"].strip()
-    phone       = request.form["phone"].strip()
-    date_joined = request.form["date_joined"].strip()
+        name= request.form["name"].strip()
+        email= request.form["email"].strip()
+        department= request.form["department"].strip()
+        job_title= request.form["job_title"].strip()
+        phone= request.form["phone"].strip()
+        date_joined = request.form["date_joined"].strip()
 
-    error = (
-        validate_input(name, "Name") or
-        validate_input(email, "Email") or
-        validate_input(department, "Department") or
-        validate_input(job_title, "Job title") or
-        validate_input(phone, "Phone") or
-        validate_input(date_joined, "Date joined")
-    )
-
-    if not error:
-        conn = get_db()
-        conn.execute("""
-            INSERT INTO employees (name, email, department, job_title, phone, date_joined, username)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, 
-            request.form["name"],
-            request.form["email"],
-            request.form["department"],
-            request.form["job_title"],
-            request.form["phone"],
-            request.form["date_joined"],
-            session["username"]
+        error = (
+            validate_input(name, "Name") or
+            validate_input(email, "Email") or
+            validate_input(department, "Department") or
+            validate_input(job_title, "Job title") or
+            validate_input(phone, "Phone") or
+            validate_input(date_joined, "Date joined")
         )
-        conn.commit()
-        conn.close()
-        return redirect(url_for("dashboard"))
+
+        if not error:
+            conn = get_db()
+            conn.execute("""
+                INSERT INTO employees (name, email, department, job_title, phone, date_joined, username)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (name, email, department, job_title, phone, date_joined, session["username"]))
+            conn.commit()
+            conn.close()
+            return redirect(url_for("dashboard"))
     return render_template("add_employee.html",error=error)
 
 @app.route("/edit/<int:emp_id>", methods=["GET", "POST"])
@@ -158,6 +152,10 @@ def edit_employee(emp_id):
         return redirect(url_for("login"))
     conn = get_db()
     employee = conn.execute("SELECT * FROM employees WHERE id=?", (emp_id,)).fetchone()
+    if not employee:
+        conn.close()
+        return redirect(url_for("dashboard"))
+
     if request.method == "POST":
         conn.execute("""
             UPDATE employees
@@ -195,4 +193,4 @@ def logout():
 
 if __name__ == "__main__":
     init_db()
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
