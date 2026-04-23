@@ -28,7 +28,7 @@ def init_db():
             id       INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT,
             password TEXT,
-            role     TEXT   -- 'admin' or 'employee'
+            role     TEXT  
         )
     """)
     conn.execute("""
@@ -40,8 +40,7 @@ def init_db():
             job_title   TEXT,
             phone       TEXT,
             date_joined TEXT,
-            username    TEXT   -- links employee record to a user account
-        )
+            username    TEXT   
     """)
     existing = conn.execute("SELECT * FROM users WHERE username='admin'").fetchone()
     if not existing:
