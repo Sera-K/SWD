@@ -25,10 +25,10 @@ def init_db():
     conn = get_db()
     conn.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT,
             password TEXT,
-            role     TEXT  
+            role TEXT  
         )
     """)
     conn.execute("""
@@ -41,6 +41,7 @@ def init_db():
             phone       TEXT,
             date_joined TEXT,
             username    TEXT   
+        )
     """)
     existing = conn.execute("SELECT * FROM users WHERE username='admin'").fetchone()
     if not existing:
