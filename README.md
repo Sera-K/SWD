@@ -1,9 +1,9 @@
-# CorpTrack — Company Employee Records Management System
+# CorpTrack - Company Employee Records Management System
 
 A web-based employee records management system built with Python (Flask) and SQLite.  
 CorpTrack was developed in two versions to demonstrate a structured security improvement process:  
-- **app.py** — intentionally insecure baseline (port 5000)  
-- **app_secure.py** — hardened version with all security fixes applied (port 5001)
+- **app.py** - intentionally insecure baseline (port 5000)  
+- **app_secure.py** - hardened version with all security fixes applied (port 5001)
 
 ---
 
