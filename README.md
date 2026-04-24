@@ -19,8 +19,8 @@ The project follows the Secure Software Development Lifecycle (SSDLC) approach: 
 
 ### Functional Features
 - User registration and login system
-- Role-based access control — two distinct user roles with different privileges
-- Full CRUD operations — Create, Read, Update, Delete employee records
+- Role-based access control - two distinct user roles with different privileges
+- Full CRUD operations - Create, Read, Update, Delete employee records
 - Employee search by name or department (Admin only)
 - Secure logout with session clearing
 
@@ -39,11 +39,11 @@ The project follows the Secure Software Development Lifecycle (SSDLC) approach: 
 ```
 corptrack/
 │
-├── app.py                    Vulnerable baseline — intentionally insecure (port 5000)
+├── app.py                    Vulnerable baseline - intentionally insecure (port 5000)
 ├── app_secure.py             Hardened secure version with all fixes applied (port 5001)
 │
-├── corptrack.db              SQLite database for app.py — plain-text passwords
-├── corptrack_secure.db       SQLite database for app_secure.py — bcrypt hashed passwords
+├── corptrack.db              SQLite database for app.py - plain-text passwords
+├── corptrack_secure.db       SQLite database for app_secure.py - bcrypt hashed passwords
 │
 ├── requirements.txt          Python dependencies: flask, bcrypt
 ├── README.md                 Project documentation (this file)
